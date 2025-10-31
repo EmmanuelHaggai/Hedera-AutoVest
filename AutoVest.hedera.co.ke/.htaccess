@@ -1,0 +1,23 @@
+# Enable URL rewriting
+RewriteEngine On
+
+# Make sure the base directory is correct
+RewriteBase /
+
+# Redirect clean URL /join to join.php
+RewriteRule ^join$ join.php [L,QSA]
+
+# Optional: redirect /index or /home to /
+RewriteRule ^(index|home)$ / [R=301,L]
+
+# Optional: remove trailing slashes
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)/$ /$1 [R=301,L]
+
+# Ensure browsers treat .pdf as viewable content
+AddType application/pdf .pdf
+
+# Force inline display for any .pdf in this folder
+<FilesMatch "\.pdf$">
+  Header set Content-Disposition "inline"
+</FilesMatch>
