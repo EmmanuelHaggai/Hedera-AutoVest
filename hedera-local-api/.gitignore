@@ -1,0 +1,17 @@
+# .gitignore
+# Environment variables
+.env
+
+# System and IDE files
+*.log
+*.bak
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Cache / uploads
+/vendor/
+node_modules/
+tmp/
+docs/
