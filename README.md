@@ -9,7 +9,8 @@ Built on **Hedera Hashgraph**, it merges **AI, blockchain, and mobile money** to
 ## 🚀 Project Links
 
 **🌐 Website:** [https://autovest.hedera.co.ke](https://autovest.hedera.co.ke)  
-**🎥 Demo Video:** [https://autovest.hedera.co.ke/demo](https://autovest.hedera.co.ke/demo)  
+**📱 Short Portfolio Demo (YouTube Short):** [https://www.youtube.com/shorts/5xxtLX_lPLs](https://www.youtube.com/shorts/5xxtLX_lPLs)  
+**🎥 Full Demo Video:** [https://autovest.hedera.co.ke/demo](https://autovest.hedera.co.ke/demo)  
 **📜 Certification:**  
 - View on HashgraphDev: [https://certs.hashgraphdev.com/e6054f8f-2775-4ae5-95b8-05cb14df9c89.pdf](https://certs.hashgraphdev.com/e6054f8f-2775-4ae5-95b8-05cb14df9c89.pdf)  
 - View directly (no download): [https://autovest.hedera.co.ke/docs/certificate.pdf](https://autovest.hedera.co.ke/docs/certificate.pdf)
@@ -34,6 +35,8 @@ We aim to empower millions of Africans to own real shares, trade transparently, 
   - Purchase airtime or top up via **M-Pesa**
   - Complete **KYC** verification directly in WhatsApp
 - All trades are **on-chain**, and every transaction generates an immutable **Hedera Consensus Service (HCS)** message receipt.
+- For a quick visual of account creation, buying stocks, and checking the live portfolio inside WhatsApp, watch the short demo:  
+  👉 [https://www.youtube.com/shorts/5xxtLX_lPLs](https://www.youtube.com/shorts/5xxtLX_lPLs)
 
 ---
 
@@ -81,6 +84,9 @@ This dual-engine allows the AI to:
 
 3. **Watch as trades are executed on-chain**, and view your receipts via the Hedera explorer.
 
+4. For a fast visual overview of the experience (account creation → buying stocks → checking `/portfolio` inside WhatsApp), see the YouTube Short:  
+   👉 [https://www.youtube.com/shorts/5xxtLX_lPLs](https://www.youtube.com/shorts/5xxtLX_lPLs)
+
 ---
 
 ## 👥 Community
@@ -119,7 +125,8 @@ Let’s make Africa’s next financial revolution happen on **Hedera**.
 ### 🖇️ Useful Links
 
 - **Website:** [https://autovest.hedera.co.ke](https://autovest.hedera.co.ke)  
-- **Demo Video:** [https://autovest.hedera.co.ke/demo](https://autovest.hedera.co.ke/demo)  
+- **Short Portfolio Demo:** [https://www.youtube.com/shorts/5xxtLX_lPLs](https://www.youtube.com/shorts/5xxtLX_lPLs)  
+- **Full Demo Video:** [https://autovest.hedera.co.ke/demo](https://autovest.hedera.co.ke/demo)  
 - **Certification:** [https://autovest.hedera.co.ke/docs/certificate.pdf](https://autovest.hedera.co.ke/docs/certificate.pdf)  
 - **Join Community:** [https://whatsapp.hedera.co.ke/join](https://whatsapp.hedera.co.ke/join)
 
@@ -127,4 +134,3 @@ Let’s make Africa’s next financial revolution happen on **Hedera**.
 
 ### 🪙 Powered by
 **Hedera Hashgraph • AI • Web3 • Mobile Money**
-
