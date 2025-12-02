@@ -8,12 +8,12 @@ Built on **Hedera Hashgraph**, it merges **AI, blockchain, and mobile money** to
 
 ## 🚀 Project Links
 
-**🌐 Website:** [https://autovest.hedera.co.ke](https://autovest.hedera.co.ke)  
+**🌐 Website:** [https://autovest.solyntra.org](https://autovest.solyntra.org)  
 **📱 Short Portfolio Demo (YouTube Short):** [https://www.youtube.com/shorts/5xxtLX_lPLs](https://www.youtube.com/shorts/5xxtLX_lPLs)  
-**🎥 Full Demo Video:** [https://autovest.hedera.co.ke/demo](https://autovest.hedera.co.ke/demo)  
+**🎥 Full Demo Video:** [https://autovest.solyntra.org/demo](https://autovest.solyntra.org/demo)  
 **📜 Certification:**  
 - View on HashgraphDev: [https://certs.hashgraphdev.com/e6054f8f-2775-4ae5-95b8-05cb14df9c89.pdf](https://certs.hashgraphdev.com/e6054f8f-2775-4ae5-95b8-05cb14df9c89.pdf)  
-- View directly (no download): [https://autovest.hedera.co.ke/docs/certificate.pdf](https://autovest.hedera.co.ke/docs/certificate.pdf)
+- View directly (no download): [https://autovest.solyntra.org/docs/certificate.pdf](https://autovest.solyntra.org/docs/certificate.pdf)
 
 ---
 
@@ -71,7 +71,7 @@ This dual-engine allows the AI to:
 ## 📱 How to Use the WhatsApp AI Agent
 
 1. **Join the Hedera Innovators Club** to become an early beta tester:  
-   👉 [https://whatsapp.hedera.co.ke/join](https://whatsapp.hedera.co.ke/join)
+   👉 [https://whatsapp.solyntra.org/join](https://whatsapp.solyntra.org/join)
 
 2. **Interact with the AI agent** through WhatsApp:
    - Send `/start` or any message to begin.  
@@ -95,7 +95,7 @@ This dual-engine allows the AI to:
 When studies resume, the community will scale to **10,000+ members** across Africa.  
 They will help beta test Hedera AutoVest AI and contribute to growing it into a profitable ecosystem that reinvests part of its earnings back into the Hedera community.
 
-Join us: [https://whatsapp.hedera.co.ke/join](https://whatsapp.hedera.co.ke/join)
+Join us: [https://whatsapp.solyntra.org/join](https://whatsapp.solyntra.org/join)
 
 ---
 
@@ -124,11 +124,11 @@ Let’s make Africa’s next financial revolution happen on **Hedera**.
 
 ### 🖇️ Useful Links
 
-- **Website:** [https://autovest.hedera.co.ke](https://autovest.hedera.co.ke)  
+- **Website:** [https://autovest.solyntra.org](https://autovest.solyntra.org)  
 - **Short Portfolio Demo:** [https://www.youtube.com/shorts/5xxtLX_lPLs](https://www.youtube.com/shorts/5xxtLX_lPLs)  
-- **Full Demo Video:** [https://autovest.hedera.co.ke/demo](https://autovest.hedera.co.ke/demo)  
-- **Certification:** [https://autovest.hedera.co.ke/docs/certificate.pdf](https://autovest.hedera.co.ke/docs/certificate.pdf)  
-- **Join Community:** [https://whatsapp.hedera.co.ke/join](https://whatsapp.hedera.co.ke/join)
+- **Full Demo Video:** [https://autovest.solyntra.org/demo](https://autovest.solyntra.org/demo)  
+- **Certification:** [https://autovest.solyntra.org/docs/certificate.pdf](https://autovest.solyntra.org/docs/certificate.pdf)  
+- **Join Community:** [https://whatsapp.solyntra.org/join](https://whatsapp.solyntra.org/join)
 
 ---
 
