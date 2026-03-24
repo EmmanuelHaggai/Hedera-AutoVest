@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hedera AutoVest AI — WhatsApp Investing on Hedera</title>
+  <meta name="description" content="Invest in the Nairobi Stock Exchange directly from WhatsApp — powered by AI and Hedera Hashgraph." />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --card: #0f1721;
+      --muted: #8aa0b6;
+      --text: #e8eef5;
+      --accent: #00a3ff; /* Hedera-ish cool blue */
+      --accent-2: #7c3aed; /* purple */
+      --ring: rgba(0, 163, 255, 0.35);
+      --ok: #16a34a;
+      --warn: #f59e0b;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --muted: #5b6572;
+        --text: #111827;
+        --accent: #0369a1;
+        --accent-2: #6d28d9;
+        --ring: rgba(3, 105, 161, 0.25);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 85% -10%, rgba(0,163,255,.12), transparent 50%),
+                  radial-gradient(900px 600px at -10% 10%, rgba(124,58,237,.13), transparent 45%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Top nav */
+    .nav {
+      position: sticky; top: 0; z-index: 40;
+      backdrop-filter: blur(10px);
+      background: color-mix(in oklab, var(--bg) 70%, transparent);
+      border-bottom: 1px solid color-mix(in oklab, var(--muted) 20%, transparent);
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    .nav-inner { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 12px 0; }
+    .brand { display: flex; gap: 10px; align-items: center; font-weight: 800; letter-spacing: 0.3px; }
+    .brand .logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 0 0 4px var(--ring); }
+    .nav a.btn { padding: 10px 14px; border-radius: 12px; border: 1px solid color-mix(in oklab, var(--accent) 60%, transparent); background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 13%, transparent), transparent); font-weight: 600; }
+    .nav .links { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+
+    /* Hero */
+    .hero { padding: 60px 0 30px; }
+    .hero .h1 { font-size: clamp(28px, 4vw, 44px); line-height: 1.15; font-weight: 800; margin: 0 0 8px; }
+    .tagline { font-size: clamp(16px, 2.2vw, 20px); color: var(--muted); margin-bottom: 20px; }
+    .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 14px; font-weight: 700; cursor: pointer; border: 1px solid transparent;
+      background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 20%, transparent), transparent);
+      border-color: color-mix(in oklab, var(--accent) 60%, transparent);
+    }
+    .btn.secondary { background: linear-gradient(180deg, color-mix(in oklab, var(--accent-2) 18%, transparent), transparent); border-color: color-mix(in oklab, var(--accent-2) 55%, transparent); }
+
+    /* Sections */
+    section { padding: 36px 0; }
+    .card { background: color-mix(in oklab, var(--card) 90%, transparent); border: 1px solid color-mix(in oklab, var(--muted) 20%, transparent); border-radius: 16px; padding: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+    .grid { display: grid; gap: 18px; }
+    @media (min-width: 860px) { .grid.cols-2 { grid-template-columns: 1fr 1fr; } }
+
+    h2 { font-size: clamp(22px, 3vw, 28px); margin: 0 0 12px; letter-spacing: .2px; }
+    h3 { font-size: 18px; margin: 16px 0 8px; }
+    p { margin: 8px 0; }
+
+    /* Tables */
+    .table { width: 100%; border-collapse: collapse; border-radius: 14px; overflow: hidden; }
+    .table th, .table td { padding: 12px 12px; border-bottom: 1px solid color-mix(in oklab, var(--muted) 20%, transparent); text-align: left; vertical-align: top; }
+    .table th { background: color-mix(in oklab, var(--card) 80%, transparent); font-weight: 700; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; border: 1px solid color-mix(in oklab, var(--muted) 30%, transparent); color: var(--muted); font-size: 12px; font-weight: 600; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 1px solid color-mix(in oklab, var(--accent) 40%, transparent); }
+
+    /* Footer */
+    footer { padding: 40px 0 60px; color: var(--muted); }
+    .small { font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <span>Hedera AutoVest AI</span>
+      </div>
+      <nav class="links">
+        <a href="#vision">Vision</a>
+        <a href="#problem">Problem</a>
+        <a href="#solution">Solution</a>
+        <a href="#hedera">Why Hedera</a>
+        <a href="#market">Market</a>
+        <a href="#product">Product</a>
+        <a href="#business">Business</a>
+        <a href="#tokenomics">Tokenomics</a>
+        <a href="#traction">Traction</a>
+        <a href="#team">Team</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#ask">The Ask</a>
+        <a class="btn" href="https://autovest.hedera.co.ke/demo" target="_blank" rel="noopener">Live Demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero" id="vision">
+      <p class="badge">Pitch · Web3 Fundamentals</p>
+      <h1 class="h1">Hedera AutoVest AI</h1>
+      <p class="tagline">Invest in the Nairobi Stock Exchange directly from WhatsApp — powered by AI and Hedera Hashgraph.</p>
+      <div class="cta-row">
+        <a class="btn" href="https://autovest.hedera.co.ke" target="_blank" rel="noopener">Website</a>
+        <a class="btn secondary" href="https://whatsapp.hedera.co.ke/join" target="_blank" rel="noopener">Join Community</a>
+        <a class="btn" href="#ask">View The Ask</a>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h3>Vision</h3>
+        <p>To make investing in African financial markets as easy as sending a message. AutoVest AI connects AI, blockchain, and mobile money into a unified on-chain ecosystem that democratizes wealth creation.</p>
+      </div>
+    </section>
+
+    <section id="problem" class="grid cols-2">
+      <article class="card">
+        <h2>2. The Problem</h2>
+        <h3>Current Challenges</h3>
+        <ul>
+          <li>Over 90% of Kenyans are excluded from stock market participation due to complexity and minimum investment barriers.</li>
+          <li>Traditional brokers require manual onboarding, paperwork, and high fees.</li>
+          <li>Retail investors lack real-time analytics, AI tools, and trustless systems to guide decision-making.</li>
+        </ul>
+        <p><strong>Result:</strong> Financial inclusion remains low despite high smartphone and mobile money penetration.</p>
+      </article>
+      <article id="solution" class="card">
+        <h2>3. The Solution (The Hook)</h2>
+        <p><strong>Hedera AutoVest AI</strong> — an AI-powered WhatsApp investment agent that lets anyone:</p>
+        <ul>
+          <li>Trade tokenized NSE stocks instantly.</li>
+          <li>Receive AI-driven recommendations using live data and sentiment analysis.</li>
+          <li>Send, receive, and invest using HBAR and HKSH tokens.</li>
+          <li>Subscribe to automated trading strategies (daily, weekly, monthly).</li>
+          <li>Perform KYC and top-ups directly inside WhatsApp.</li>
+        </ul>
+        <p><em>Simple. Smart. On-Chain.</em></p>
+      </article>
+    </section>
+
+    <section id="hedera" class="card">
+      <h2>4. Why Hedera? (Technical & Strategic Advantage)</h2>
+      <p>Hedera provides the foundation we need for scale, security, and trust.</p>
+      <div class="table-wrap">
+        <table class="table" aria-label="Hedera features and advantages">
+          <thead>
+            <tr>
+              <th>Hedera Feature</th>
+              <th>Advantage for AutoVest</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ABFT Consensus</td>
+              <td>Instant and final settlement for trades.</td>
+            </tr>
+            <tr>
+              <td>Hedera Token Service (HTS)</td>
+              <td>Enables tokenization of all NSE stocks.</td>
+            </tr>
+            <tr>
+              <td>Hedera Consensus Service (HCS)</td>
+              <td>Immutable on-chain trade receipts.</td>
+            </tr>
+            <tr>
+              <td>Low, Predictable Fees</td>
+              <td>Affordable micro-investing for retail users.</td>
+            </tr>
+            <tr>
+              <td>ESG-Friendly Network</td>
+              <td>Carbon-negative infrastructure fits sustainable finance goals.</td>
+            </tr>
+            <tr>
+              <td>Enterprise Governance</td>
+              <td>Builds institutional trust for regulators and investors.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="market" class="grid cols-2">
+      <article class="card">
+        <h2>5. Market & Opportunity (TAM / SAM / SOM)</h2>
+        <p><strong>Target User:</strong> Retail investors, university students, and SMEs using M-Pesa or Stripe in Kenya.</p>
+        <h3>Market Size</h3>
+        <ul>
+          <li>Kenyan investment market: $4.5B+ potential retail participation.</li>
+          <li>Mobile money users: 37M in Kenya, 500M+ across Africa.</li>
+          <li>TAM (Africa): $50B+ untapped retail investing market.</li>
+          <li>SAM (Kenya): $5B tokenized stock potential.</li>
+          <li>SOM (Initial Target): $10M traded volume within 12 months of mainnet.</li>
+        </ul>
+      </article>
+      <article id="product" class="card">
+        <h2>6. Product / Architecture & TRL</h2>
+        <h3>Architecture Overview</h3>
+        <ul>
+          <li>WhatsApp Cloud API – Conversational AI interface.</li>
+          <li>AutoVest Backend (PHP + Python) – Transaction logic, AI orchestration.</li>
+          <li>TCN Neural Network (AI Engine) – Time-series stock prediction using calibrated sigmoid curve.</li>
+          <li>Hedera Token Service (HTS) – Tokenized NSE assets + HKSH stablecoin.</li>
+          <li>Hedera Consensus Service (HCS) – Trade receipts & audit trail.</li>
+          <li>Stripe + M-Pesa + Google Auth – Payments and identity verification.</li>
+        </ul>
+        <p><strong>TRL:</strong> Prototype / Early MVP</p>
+        <p><strong>Demo:</strong> <a href="https://autovest.hedera.co.ke/demo" target="_blank" rel="noopener">autovest.hedera.co.ke/demo</a></p>
+      </article>
+    </section>
+
+    <section id="business" class="grid cols-2">
+      <article class="card">
+        <h2>7. Business & Revenue Model</h2>
+        <h3>Revenue Streams</h3>
+        <ul>
+          <li>Transaction Fees: 0.5–1% per trade.</li>
+          <li>Subscription Plans: For AI automation tools.</li>
+          <li>Partnerships: Integration with brokers, asset managers, and fintechs.</li>
+          <li>Premium API Access: For developers and institutions.</li>
+        </ul>
+        <p><strong>Payment Channels:</strong> M-Pesa, Stripe, or crypto (HBAR / HKSH).</p>
+        <p><strong>Target Margin:</strong> 20–30% on all transactional volumes.</p>
+      </article>
+      <article id="tokenomics" class="card">
+        <h2>8. Tokenomics & Community</h2>
+        <h3>HKSH Token</h3>
+        <p><strong>Type:</strong> Hedera-based stable token pegged 1:1 to the Kenyan shilling.</p>
+        <p><strong>Utility:</strong> Transactional medium for trading, staking, and rewards.</p>
+        <h3>Distribution</h3>
+        <ul>
+          <li>60% community & liquidity</li>
+          <li>20% ecosystem & development</li>
+          <li>10% team & advisors (vested)</li>
+          <li>10% partnerships & education</li>
+        </ul>
+        <h3>Community Growth</h3>
+        <p>Hedera Innovators Club: 250+ active builders and testers. Scaling to 10,000+ members once universities reopen. Community will beta-test AutoVest and reinvest profits into other Hedera projects.</p>
+        <p><strong>Join:</strong> <a href="https://whatsapp.hedera.co.ke/join" target="_blank" rel="noopener">whatsapp.hedera.co.ke/join</a></p>
+      </article>
+    </section>
+
+    <section id="traction" class="grid cols-2">
+      <article class="card">
+        <h2>9. Traction & Milestones</h2>
+        <h3>✅ Achievements During Hackathon</h3>
+        <ul>
+          <li>Built full WhatsApp AI trading prototype.</li>
+          <li>Tokenized NSE assets via Hedera Token Service.</li>
+          <li>Integrated TCN neural network for predictive trading.</li>
+          <li>Developed HKSH stablecoin for internal transactions.</li>
+          <li>Deployed live testnet backend: <a href="https://autovest.hedera.co.ke" target="_blank" rel="noopener">autovest.hedera.co.ke</a></li>
+        </ul>
+        <h3>🚀 Next Milestones</h3>
+        <ul>
+          <li>Mainnet deployment & broker integration.</li>
+          <li>1,000 early adopters onboarded.</li>
+          <li>Automated portfolio management launch.</li>
+        </ul>
+      </article>
+      <article id="team" class="card">
+        <h2>10. Team & Expertise</h2>
+        <p><strong>Emmanuel Haggai</strong><br/>Founder, AI & Blockchain Developer<br/>Background: Mechatronic Engineering</p>
+        <p>Built full backend, AI model, and WhatsApp integration. Expertise in Hedera SDK, AI trading systems, and Web3 development.</p>
+        <p><strong>Community Support:</strong> Hedera Innovators Club — 250+ technical testers and future contributors.</p>
+      </article>
+    </section>
+
+    <section id="roadmap" class="card">
+      <h2>11. Roadmap</h2>
+      <table class="table" aria-label="Roadmap timeline">
+        <thead>
+          <tr><th>Timeline</th><th>Key Goal</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Q4 2025</td><td>Launch on Hedera mainnet + pilot test with 1,000 users</td></tr>
+          <tr><td>Q1 2026</td><td>AI auto-trading expansion + mobile dashboard</td></tr>
+          <tr><td>Q2 2026</td><td>Integrate additional African exchanges</td></tr>
+          <tr><td>Q3 2026</td><td>Scale community to 10,000+ and achieve profitability</td></tr>
+          <tr><td>Q4 2026</td><td>Institutional partnerships and cross-border trading</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="ask" class="grid cols-2">
+      <article class="card">
+        <h2>12. The Ask</h2>
+        <ul>
+          <li>$100,000 in grant funding to expand development and mainnet operations.</li>
+          <li>Mentorship in DeFi compliance and stock tokenization frameworks.</li>
+          <li>Partnerships with brokers, universities, and African fintech accelerators.</li>
+        </ul>
+        <p><strong>Goal:</strong> To position Hedera AutoVest AI as the gateway for Africa’s next billion Web3 investors.</p>
+      </article>
+      <article class="card">
+        <h2>Bonus Links</h2>
+        <p><a href="https://autovest.hedera.co.ke" target="_blank" rel="noopener">Website</a></p>
+        <p><a href="https://autovest.hedera.co.ke/demo" target="_blank" rel="noopener">Demo</a></p>
+        <p><a href="https://autovest.hedera.co.ke/docs/certificate.pdf" target="_blank" rel="noopener">Certification (PDF)</a></p>
+      </article>
+    </section>
+
+    <footer class="wrap">
+      <div class="card">
+        <p class="small">© <span id="y"></span> Hedera AutoVest AI. Built for speed, clarity, and investor readiness.</p>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

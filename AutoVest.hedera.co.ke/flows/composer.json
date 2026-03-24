@@ -1,0 +1,8 @@
+{
+    "require": {
+        "phpseclib/phpseclib": "^3",
+        "slim/slim": "^4.13",
+        "nyholm/psr7": "^1.8",
+        "nyholm/psr7-server": "^1.1"
+    }
+}

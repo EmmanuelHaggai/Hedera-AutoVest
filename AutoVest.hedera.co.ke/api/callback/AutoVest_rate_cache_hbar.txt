@@ -1,0 +1,5 @@
+{
+    "timestamp": 1767212185,
+    "hbarToKes": 13.67,
+    "hbarToUsd": 0.105859
+}
