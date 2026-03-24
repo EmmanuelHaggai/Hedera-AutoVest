@@ -6,6 +6,30 @@ ini_set('display_errors', 1); // Display errors in the browser
 ini_set('display_startup_errors', 1); // Display startup errors
 
 
+require_once '/var/www/AutoVest.hedera.co.ke/bootstrap_secrets.php';
+
+try {
+    $DEBUG = filter_var(env('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+
+    if ($DEBUG) {
+        ini_set('display_errors', '1');
+        ini_set('display_startup_errors', '1');
+        error_reporting(E_ALL);
+    }
+
+    $AWS_REGION = getenv('AWS_REGION') ?: 'eu-west-1';
+    $AWS_SECRET_ID = getenv('AWS_SECRET_ID') ?: 'prod/autovest/app';
+
+    $env = loadAwsSecrets($AWS_SECRET_ID, $AWS_REGION);
+
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'bootstrap_failed']);
+    error_log($e->getMessage());
+    exit;
+}
+
+
 // AutoVest FUNCTIONS
 //-------------------------------------------------------
 function custom_AutoVest_text_whatsapp($whatsapp_number, $text) {
@@ -14,7 +38,7 @@ function custom_AutoVest_text_whatsapp($whatsapp_number, $text) {
 
     $url = 'https://graph.facebook.com/v18.0/887649351092468/messages';
 
-    $access_token = getenv('WHATSAPP_ACCESS_TOKEN');
+    $access_token = env('WHATSAPP_ACCESS_TOKEN');
 
     // Request headers
     $headers = [
@@ -167,7 +191,7 @@ function build_prompt_with_history_0_AutoVest(string $wa_id, string $user_prompt
  * - Shows the 3 most recent NSE announcements for today
  * - Nairobi local time
  *
- * Requires: .env with DB_HOST, DB_NAME, DB_USER, DB_PASS (read via getenv)
+ * Requires: .env with DB_HOST, DB_NAME, DB_USER, DB_PASS (read via env)
  */
 
 function getSystemStatsSummary_AutoVest_Hedera($NSE_data=false): string {
@@ -249,10 +273,10 @@ function getSystemStatsSummary_AutoVest_Hedera($NSE_data=false): string {
     $TOP_N = 15;      // top lists in human section; JSON will carry all rows
 
     // Database config from env only
-    $dbHost = $db_host = getenv('DB_HOST') ?: 'localhost';
-    $dbUser = $db_user = getenv('DB_USER') ?: 'root';
-    $dbPass = $db_pass = getenv('DB_PASS') ?: '';
-    $dbName = $db_name = getenv('DB_NAME') ?: 'hedera_ai';
+    $dbHost = $db_host = env('DB_HOST') ?: 'localhost';
+    $dbUser = $db_user = env('DB_USER') ?: 'root';
+    $dbPass = $db_pass = env('DB_PASS') ?: '';
+    $dbName = $db_name = env('DB_NAME') ?: 'hedera_ai';
 
     if (!empty($dbHost) && !empty($dbName) && !empty($dbUser) && !empty($dbPass)) {
         try {
@@ -621,7 +645,7 @@ function MPESA_TOPUP_init_AutoVest_whatsapp($whatsapp_number) {
   $url = 'https://graph.facebook.com/v18.0/887649351092468/messages';
 
     // Headers for the request
-    $access_token = getenv('WHATSAPP_ACCESS_TOKEN');
+    $access_token = env('WHATSAPP_ACCESS_TOKEN');
 
     // Request headers
     $headers = [
@@ -699,7 +723,7 @@ function CARD_TOPUP_init_AutoVest_whatsapp($whatsapp_number) {
   
   $url = 'https://graph.facebook.com/v18.0/887649351092468/messages';
 
-  $access_token = getenv('WHATSAPP_ACCESS_TOKEN');
+  $access_token = env('WHATSAPP_ACCESS_TOKEN');
 
     // Request headers
     $headers = [
@@ -778,7 +802,7 @@ function kyc_init_AutoVest_whatsapp($whatsapp_number) {
   
   $url = 'https://graph.facebook.com/v18.0/887649351092468/messages';
 
-  $access_token = getenv('WHATSAPP_ACCESS_TOKEN');
+  $access_token = env('WHATSAPP_ACCESS_TOKEN');
 
     // Request headers
     $headers = [
@@ -1064,7 +1088,7 @@ function convertHbarToHKSH(
 
 function check_AutoVest_intent($user_request, $AI_responce) {
     $url = "https://api.openai.com/v1/chat/completions";
-    $apiKey = getenv("OPENAI_API_KEY") ?: "";
+    $apiKey = env("OPENAI_API_KEY") ?: "";
 
     // Build the system prompt for Hedera AutoVest (HBAR + HKSH)
 $system_prompt = 'You are an intent classifier for Hedera AutoVest on WhatsApp.
@@ -1224,7 +1248,7 @@ function Hbar_SEND_init_HKSH_whatsapp($whatsapp_number) {
   
   $url = 'https://graph.facebook.com/v18.0/887649351092468/messages';
 
-  $access_token = getenv('WHATSAPP_ACCESS_TOKEN');
+  $access_token = env('WHATSAPP_ACCESS_TOKEN');
 
     // Request headers
     $headers = [
@@ -1302,7 +1326,7 @@ function HKSH_WITHDRAW_MPESA_init_AutoVest_whatsapp($whatsapp_number) {
   
   $url = 'https://graph.facebook.com/v18.0/887649351092468/messages';
 
-  $access_token = getenv('WHATSAPP_ACCESS_TOKEN');
+  $access_token = env('WHATSAPP_ACCESS_TOKEN');
 
     // Request headers
     $headers = [
@@ -1407,7 +1431,7 @@ function HKSH_HBAR_CONVERSION_init_whatsapp($whatsapp_number) {
   
   $url = 'https://graph.facebook.com/v18.0/887649351092468/messages';
 
-  $access_token = getenv('WHATSAPP_ACCESS_TOKEN');
+  $access_token = env('WHATSAPP_ACCESS_TOKEN');
 
     // Request headers
     $headers = [
@@ -1484,7 +1508,7 @@ function HKSH_HBAR_NSE_BUY_whatsapp($whatsapp_number) {
   
   $url = 'https://graph.facebook.com/v18.0/887649351092468/messages';
 
-  $access_token = getenv('WHATSAPP_ACCESS_TOKEN');
+  $access_token = env('WHATSAPP_ACCESS_TOKEN');
 
     // Request headers
     $headers = [
@@ -1561,7 +1585,7 @@ function HKSH_HBAR_NSE_AutoVest_AI_Subscribe($whatsapp_number) {
   
   $url = 'https://graph.facebook.com/v18.0/887649351092468/messages';
 
-  $access_token = getenv('WHATSAPP_ACCESS_TOKEN');
+  $access_token = env('WHATSAPP_ACCESS_TOKEN');
 
     // Request headers
     $headers = [
@@ -1638,7 +1662,7 @@ function AutoVest_FeedbackFlow_Init($whatsapp_number) {
   
   $url = 'https://graph.facebook.com/v18.0/887649351092468/messages';
 
-  $access_token = getenv('WHATSAPP_ACCESS_TOKEN');
+  $access_token = env('WHATSAPP_ACCESS_TOKEN');
 
     // Request headers
     $headers = [
@@ -1929,7 +1953,7 @@ function choose_AutoVest_option_AI($user_prompt, $wa_id = "") {
     ];
 
   // API key
-  $apiKey = getenv("OPENAI_API_KEY") ?: "";
+  $apiKey = env("OPENAI_API_KEY") ?: "";
 
 $system_prompt = '
 You are AutoVest AI, the assistant for the Hedera AutoVest platform on WhatsApp. You help users manage HBAR and HKSH, buy NSE stocks effortlessly, and set up Auto-Invest by industry. You can check balances, convert HBAR and HKSH, handle simple transfers, link external accounts, and give practical investment guidance. Answer clearly and avoid internal logs.
@@ -2175,7 +2199,7 @@ function initeractive_whatsapp_hksh_airtime_v1($whatsapp_number, $intention_text
 
   $url = 'https://graph.facebook.com/v18.0/887649351092468/messages';
 
-  $apiKey = getenv("WHATSAPP_ACCESS_TOKEN") ?: "";
+  $apiKey = env("WHATSAPP_ACCESS_TOKEN") ?: "";
 
   // Headers for the request
   $headers = array(
@@ -2277,7 +2301,7 @@ function initeractive_whatsapp_hksh_airtime_v1($whatsapp_number, $intention_text
 
 function build_welcome_reply(string $wa_id, string $user_prompt, string $feedback): string {
     $url    = "https://api.openai.com/v1/chat/completions";
-    $apiKey = getenv("OPENAI_API_KEY") ?: "";
+    $apiKey = env("OPENAI_API_KEY") ?: "";
 
     $include_NSE_data = shouldIncludeNSEData($user_prompt);
     $stats_context = (string) getSystemStatsSummary_AutoVest_Hedera($include_NSE_data);
@@ -2519,7 +2543,7 @@ function getHederaBalances(string $account_id, string $network = 'testnet', stri
  */
 
 function shouldIncludeNSEData($user_prompt) {
-    $apiKey = getenv("OPENAI_API_KEY") ?: "";
+    $apiKey = env("OPENAI_API_KEY") ?: "";
     $url = "https://api.openai.com/v1/chat/completions";
 
     $system_prompt = <<<SYS
@@ -2572,7 +2596,7 @@ function AIRTIME_TEMPLATE_init_AutoVest_whatsapp($whatsapp_number) {
 
     // Replace this with your own Phone Number ID, Access Token, and Template Name
     $phone_number_id = "887649351092468";  // e.g. 123456789012345
-    $access_token = getenv('WHATSAPP_ACCESS_TOKEN');
+    $access_token = env('WHATSAPP_ACCESS_TOKEN');
 
     // WhatsApp Cloud API endpoint
     $url = "https://graph.facebook.com/v21.0/{$phone_number_id}/messages";
@@ -2654,11 +2678,11 @@ function normalize_msisdn_ke(string $raw): string {
  *   AUTOVEST_NODE_API_KEY  = optional, will be sent as X-API-Key
  */
 function autovest_json_post(string $path, array $payload, int $timeout = 25): array {
-    $base = rtrim(getenv('AUTOVEST_NODE_BASE_URL') ?: 'http://127.0.0.1:5050', '/');
+    $base = rtrim(env('AUTOVEST_NODE_BASE_URL') ?: 'http://127.0.0.1:5050', '/');
     $url  = $base . $path;
 
     $headers = ['Content-Type: application/json'];
-    if ($k = getenv('AUTOVEST_NODE_API_KEY')) {
+    if ($k = env('AUTOVEST_NODE_API_KEY')) {
         $headers[] = 'X-API-Key: ' . $k;
     }
 
@@ -2743,12 +2767,12 @@ function send_HKSH_Token_Transaction(string $signerPrivKey,
                                      string $toAccountId,
                                      float $humanAmount,
                                      string $memo = ''): array {
-    $decimals      = (int) (getenv('HKSH_DECIMALS') ?: 6);
+    $decimals      = (int) (env('HKSH_DECIMALS') ?: 6);
     $scale         = $decimals > 0 ? (10 ** $decimals) : 1;
     $scaledAmount  = (int) round($humanAmount * $scale);
 
-    $operatorId  = getenv('HEDERA_OPERATOR_ID') ?: '';
-    $operatorKey = getenv('HEDERA_OPERATOR_KEY') ?: '';
+    $operatorId  = env('HEDERA_OPERATOR_ID') ?: '';
+    $operatorKey = env('HEDERA_OPERATOR_KEY') ?: '';
 
     // Determine whether this is operator → user, or user → someone (e.g., main)
     if ($operatorKey && hash_equals($operatorKey, $signerPrivKey)) {
@@ -2796,7 +2820,7 @@ function initeractive_whatsapp_hksh_stocks($whatsapp_number, $intention_text, $i
     // WhatsApp Cloud API endpoint
     $url = "https://graph.facebook.com/v21.0/{$phone_number_id}/messages";
     
-    $access_token = getenv('WHATSAPP_ACCESS_TOKEN');
+    $access_token = env('WHATSAPP_ACCESS_TOKEN');
 
     // Request headers
     $headers = [

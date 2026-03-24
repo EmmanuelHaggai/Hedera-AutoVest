@@ -16,29 +16,35 @@ if (!empty($original_raw_date)) {
     file_put_contents($file, $data, FILE_APPEND | LOCK_EX);  
 }
 
-// Load environment variables from .env
-$envPath = '/var/www/AutoVest.hedera.co.ke/.env';
-if (file_exists($envPath)) {
-    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        // Skip comments
-        if (strpos(trim($line), '#') === 0) continue;
+// Load environment variables from AWS KMS
+require_once '/var/www/AutoVest.hedera.co.ke/bootstrap_secrets.php';
 
-        // Split key=value pairs
-        list($key, $value) = array_map('trim', explode('=', $line, 2));
-        if (!array_key_exists($key, $_ENV) && !array_key_exists($key, $_SERVER)) {
-            putenv("$key=$value");
-            $_ENV[$key] = $value;
-            $_SERVER[$key] = $value;
-        }
+try {
+    $DEBUG = filter_var(env('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+
+    if ($DEBUG) {
+        ini_set('display_errors', '1');
+        ini_set('display_startup_errors', '1');
+        error_reporting(E_ALL);
     }
+
+    $AWS_REGION = getenv('AWS_REGION') ?: 'eu-west-1';
+    $AWS_SECRET_ID = getenv('AWS_SECRET_ID') ?: 'prod/autovest/app';
+
+    $env = loadAwsSecrets($AWS_SECRET_ID, $AWS_REGION);
+
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'bootstrap_failed']);
+    error_log($e->getMessage());
+    exit;
 }
 
 // Retrieve database credentials from environment
-$dbHost = getenv('DB_HOST') ?: 'localhost';
-$dbUser = getenv('DB_USER') ?: 'root';
-$dbPass = getenv('DB_PASS') ?: '';
-$dbName = getenv('DB_NAME') ?: 'hedera_ai';
+$dbHost = env('DB_HOST') ?: 'localhost';
+$dbUser = env('DB_USER') ?: 'root';
+$dbPass = env('DB_PASS') ?: '';
+$dbName = env('DB_NAME') ?: 'hedera_ai';
 
 // Connect to the database
 $db = $con = mysqli_connect($dbHost, $dbUser, $dbPass, $dbName);
@@ -260,7 +266,7 @@ d($final_prompt);
 // Hedera balance checker (HBAR + HKSH token) via Mirror Node
 
 // $account_id = "0.0.7162489";
-// $hksh_token_id = getenv('HKSH_TOKEN_ID') ?: '0.0.XXXXXXX';
+// $hksh_token_id = env('HKSH_TOKEN_ID') ?: '0.0.XXXXXXX';
 // $balances = getHederaBalances($account_id, 'testnet', $hksh_token_id);
 
 // if ($balances['ok']) {

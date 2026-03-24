@@ -6,12 +6,29 @@ ini_set('display_startup_errors', 1); // Display startup errors
 
 require __DIR__ . "/vendor/autoload.php";
 
-// Load env
-////////////////////////////////////////////////////////////
-$envPath = '/var/www/AutoVest.hedera.co.ke/.env';
-if (!file_exists($envPath)) { http_response_code(500); echo json_encode(['ok'=>false,'error'=>'.env not found']); exit; }
-$env = parse_ini_file($envPath, false, INI_SCANNER_RAW);
-if ($env === false) { http_response_code(500); echo json_encode(['ok'=>false,'error'=>'failed to parse .env']); exit; }
+// Load environment variables from AWS KMS
+require_once '/var/www/AutoVest.hedera.co.ke/bootstrap_secrets.php';
+
+try {
+    $DEBUG = filter_var(env('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+
+    if ($DEBUG) {
+        ini_set('display_errors', '1');
+        ini_set('display_startup_errors', '1');
+        error_reporting(E_ALL);
+    }
+
+    $AWS_REGION = getenv('AWS_REGION') ?: 'eu-west-1';
+    $AWS_SECRET_ID = getenv('AWS_SECRET_ID') ?: 'prod/autovest/app';
+
+    $env = loadAwsSecrets($AWS_SECRET_ID, $AWS_REGION);
+
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'bootstrap_failed']);
+    error_log($e->getMessage());
+    exit;
+}
 
 $stripe_secret_key = $env['STRIPE_SECRET_KEY'] ?? ' ';
 

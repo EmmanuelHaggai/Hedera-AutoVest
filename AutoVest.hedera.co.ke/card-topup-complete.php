@@ -12,17 +12,27 @@ require_once '/var/www/AutoVest.hedera.co.ke/api/callback/hedera_functions.php';
 
 header('Content-Type: application/json');
 
-// Load .env
-$envPath = '/var/www/AutoVest.hedera.co.ke/.env';
-if (!file_exists($envPath)) {
+// Load environment variables from AWS KMS
+require_once '/var/www/AutoVest.hedera.co.ke/bootstrap_secrets.php';
+
+try {
+    $DEBUG = filter_var(env('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+
+    if ($DEBUG) {
+        ini_set('display_errors', '1');
+        ini_set('display_startup_errors', '1');
+        error_reporting(E_ALL);
+    }
+
+    $AWS_REGION = getenv('AWS_REGION') ?: 'eu-west-1';
+    $AWS_SECRET_ID = getenv('AWS_SECRET_ID') ?: 'prod/autovest/app';
+
+    $env = loadAwsSecrets($AWS_SECRET_ID, $AWS_REGION);
+
+} catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => '.env not found']);
-    exit;
-}
-$env = parse_ini_file($envPath, false, INI_SCANNER_RAW);
-if ($env === false) {
-    http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => 'failed to parse .env']);
+    echo json_encode(['ok' => false, 'error' => 'bootstrap_failed']);
+    error_log($e->getMessage());
     exit;
 }
 
@@ -37,10 +47,10 @@ if (!$stripeSecretKey) {
 \Stripe\Stripe::setApiKey($stripeSecretKey);
 
 // DB config (env or process env)
-$dbHost = getenv('DB_HOST') ?: ($env['DB_HOST'] ?? 'localhost');
-$dbUser = getenv('DB_USER') ?: ($env['DB_USER'] ?? 'root');
-$dbPass = getenv('DB_PASS') ?: ($env['DB_PASS'] ?? '');
-$dbName = getenv('DB_NAME') ?: ($env['DB_NAME'] ?? 'hedera_ai');
+$dbHost = env('DB_HOST') ?: ($env['DB_HOST'] ?? 'localhost');
+$dbUser = env('DB_USER') ?: ($env['DB_USER'] ?? 'root');
+$dbPass = env('DB_PASS') ?: ($env['DB_PASS'] ?? '');
+$dbName = env('DB_NAME') ?: ($env['DB_NAME'] ?? 'hedera_ai');
 
 // FX + fee config
 $usdToKesRate     = isset($env['USD_KES_RATE']) ? (float)$env['USD_KES_RATE'] : 130.0;
@@ -49,9 +59,9 @@ $stripeFeePercent = isset($env['STRIPE_FEE_PERCENT']) ? (float)$env['STRIPE_FEE_
 $stripeFeeFixed   = isset($env['STRIPE_FEE_FIXED_USD']) ? (float)$env['STRIPE_FEE_FIXED_USD'] : 0.30;
 
 // Hedera API host
-$envPort   = getenv('LOCAL_JS_PORT') ?: getenv('HEDERA_JS_PORT') ?: getenv('PORT') ?: '5050';
+$envPort   = env('LOCAL_JS_PORT') ?: env('HEDERA_JS_PORT') ?: env('PORT') ?: '5050';
 $hederaAPI = "http://127.0.0.1:{$envPort}";
-$hkshToken = getenv('HKSH_TOKEN_ID') ?: '0.0.7162525';
+$hkshToken = env('HKSH_TOKEN_ID') ?: '0.0.7162525';
 
 // Parse JSON input
 $inputJson = file_get_contents('php://input');

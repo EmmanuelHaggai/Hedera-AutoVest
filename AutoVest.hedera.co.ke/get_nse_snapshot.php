@@ -7,17 +7,26 @@
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 
-// ------------ .env ------------
-$envPath = __DIR__ . '/.env';
+require_once '/var/www/AutoVest.hedera.co.ke/bootstrap_secrets.php';
+
 try {
-    if (!file_exists($envPath)) throw new RuntimeException('.env not found at ' . $envPath);
-    $env   = parse_ini_file($envPath, false, INI_SCANNER_TYPED);
-    if ($env === false) throw new RuntimeException('failed to parse .env');
-    $DEBUG = isset($env['DEBUG']) && filter_var($env['DEBUG'], FILTER_VALIDATE_BOOLEAN);
-    if ($DEBUG) { ini_set('display_errors','1'); ini_set('display_startup_errors','1'); error_reporting(E_ALL); }
+    $DEBUG = filter_var(getenv('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+
+    if ($DEBUG) {
+        ini_set('display_errors', '1');
+        ini_set('display_startup_errors', '1');
+        error_reporting(E_ALL);
+    }
+
+    $AWS_REGION = getenv('AWS_REGION') ?: 'eu-west-1';
+    $AWS_SECRET_ID = getenv('AWS_SECRET_ID') ?: 'prod/autovest/app';
+
+    $env = loadAwsSecrets($AWS_SECRET_ID, $AWS_REGION);
+
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode(['ok'=>false,'error'=>$e->getMessage()]);
+    echo json_encode(['ok' => false, 'error' => 'bootstrap_failed']);
+    error_log($e->getMessage());
     exit;
 }
 

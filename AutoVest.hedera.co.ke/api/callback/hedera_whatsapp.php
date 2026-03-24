@@ -21,32 +21,38 @@ if (!empty($original_raw_data)) {
     file_put_contents($file, $data, FILE_APPEND | LOCK_EX);  
 }
 
-// Load environment variables from .env
-$envPath = '/var/www/AutoVest.hedera.co.ke/.env';
-if (file_exists($envPath)) {
-    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        // Skip comments
-        if (strpos(trim($line), ';') === 0) continue;
+// Load environment variables from AWS KMS
+require_once '/var/www/AutoVest.hedera.co.ke/bootstrap_secrets.php';
 
-        // Split key=value pairs
-        list($key, $value) = array_map('trim', explode('=', $line, 2));
-        if (!array_key_exists($key, $_ENV) && !array_key_exists($key, $_SERVER)) {
-            putenv("$key=$value");
-            $_ENV[$key] = $value;
-            $_SERVER[$key] = $value;
-        }
+try {
+    $DEBUG = filter_var(env('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+
+    if ($DEBUG) {
+        ini_set('display_errors', '1');
+        ini_set('display_startup_errors', '1');
+        error_reporting(E_ALL);
     }
+
+    $AWS_REGION = getenv('AWS_REGION') ?: 'eu-west-1';
+    $AWS_SECRET_ID = getenv('AWS_SECRET_ID') ?: 'prod/autovest/app';
+
+    $env = loadAwsSecrets($AWS_SECRET_ID, $AWS_REGION);
+
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'bootstrap_failed']);
+    error_log($e->getMessage());
+    exit;
 }
 
 // Switch db connection
 mysqli_close($db);
 
 // Retrieve database credentials from environment
-$dbHost = $db_host = getenv('DB_HOST') ?: 'localhost';
-$dbUser = $db_user = getenv('DB_USER') ?: 'root';
-$dbPass = $db_pass = getenv('DB_PASS') ?: '';
-$dbName = $db_name = getenv('DB_NAME') ?: 'hedera_ai';
+$dbHost = $db_host = env('DB_HOST') ?: 'localhost';
+$dbUser = $db_user = env('DB_USER') ?: 'root';
+$dbPass = $db_pass = env('DB_PASS') ?: '';
+$dbName = $db_name = env('DB_NAME') ?: 'hedera_ai';
 
 // Connect to the database
 $db = $con = mysqli_connect($dbHost, $dbUser, $dbPass, $dbName);
@@ -91,8 +97,8 @@ if (!empty($account_id)) {
 
             // Inputs you already have in your scope:
             // $account_id        = $account_id;
-            $network           = getenv('HEDERA_NETWORK') ?: 'testnet';
-            $hksh_token_id     = getenv('HKSH_TOKEN_ID') ?: '0.0.XXXXXXX';
+            $network           = env('HEDERA_NETWORK') ?: 'testnet';
+            $hksh_token_id     = env('HKSH_TOKEN_ID') ?: '0.0.XXXXXXX';
             $whatsapp_reciever = isset($whatsapp_reciever) ? $whatsapp_reciever : '+2547XXXXXXX'; // your existing var
             // $Body              = isset($Body) ? $Body : 'Check balance';
 
@@ -135,7 +141,7 @@ if (!empty($account_id)) {
 
         } elseif (strtolower($Body) === "/addr" || strtolower($Body) === "addr" || strtolower($Body) === "/ addr" || strtolower($Body) === "/account"  || strtolower($Body) === "/accountID" || strtolower($Body) === "/ account" ) {
 
-            $network = getenv('HEDERA_NETWORK') ?: 'testnet'; // testnet | mainnet | previewnet
+            $network = env('HEDERA_NETWORK') ?: 'testnet'; // testnet | mainnet | previewnet
 
             $feedback = "🔐 *Your Hedera AutoVest Wallet Account:*\n"
                 . "*" . $account_id . "*\n\n"
@@ -335,8 +341,8 @@ if (!empty($account_id)) {
              * needs: $account_id, optional $db (mysqli), optional $Body, $whatsapp_reciever
              */
 
-            $network           = getenv('HEDERA_NETWORK') ?: 'testnet';
-            $hksh_token_id     = getenv('HKSH_TOKEN_ID') ?: '0.0.XXXXXXX';
+            $network           = env('HEDERA_NETWORK') ?: 'testnet';
+            $hksh_token_id     = env('HKSH_TOKEN_ID') ?: '0.0.XXXXXXX';
             $whatsapp_reciever = isset($whatsapp_reciever) ? $whatsapp_reciever : '+2547XXXXXXX';
 
 
@@ -461,8 +467,8 @@ if (!empty($account_id)) {
                     // Get Wallet Account Balance (HBAR + HKSH) and reply nicely on WhatsApp
 
                     // $account_id        = $account_id;
-                    $network           = getenv('HEDERA_NETWORK') ?: 'testnet';
-                    $hksh_token_id     = getenv('HKSH_TOKEN_ID') ?: '0.0.XXXXXXX';
+                    $network           = env('HEDERA_NETWORK') ?: 'testnet';
+                    $hksh_token_id     = env('HKSH_TOKEN_ID') ?: '0.0.XXXXXXX';
                     $whatsapp_reciever = isset($whatsapp_reciever) ? $whatsapp_reciever : '+2547XXXXXXX'; // your existing var
                     // $Body              = isset($Body) ? $Body : 'Check balance';
 
@@ -504,7 +510,7 @@ if (!empty($account_id)) {
                     }
 
                 }  elseif (in_array($normalized_input, $address_variants)) {
-                    $network = getenv('HEDERA_NETWORK') ?: 'testnet'; // testnet | mainnet | previewnet
+                    $network = env('HEDERA_NETWORK') ?: 'testnet'; // testnet | mainnet | previewnet
 
                     $feedback = "🔐 *Your Hedera AutoVest Wallet Account:*\n"
                         . "*" . $account_id . "*\n\n"
@@ -530,8 +536,8 @@ if (!empty($account_id)) {
                      * needs: $account_id, optional $db (mysqli), optional $Body, $whatsapp_reciever
                      */
 
-                    $network           = getenv('HEDERA_NETWORK') ?: 'testnet';
-                    $hksh_token_id     = getenv('HKSH_TOKEN_ID') ?: '0.0.XXXXXXX';
+                    $network           = env('HEDERA_NETWORK') ?: 'testnet';
+                    $hksh_token_id     = env('HKSH_TOKEN_ID') ?: '0.0.XXXXXXX';
                     $whatsapp_reciever = isset($whatsapp_reciever) ? $whatsapp_reciever : '+2547XXXXXXX';
 
 
@@ -764,11 +770,11 @@ if (!empty($account_id)) {
      */
 
     // Config
-    $HEDERA_API = getenv('HEDERA_LOCAL_API') ?: 'http://127.0.0.1:5050';
-    $HEDERA_NETWORK = getenv('HEDERA_NETWORK') ?: 'testnet'; // testnet|mainnet|previewnet
-    $HKSH_TOKEN_ID = getenv('HKSH_TOKEN_ID') ?: '0.0.XXXXXXX';
+    $HEDERA_API = env('HEDERA_LOCAL_API') ?: 'http://127.0.0.1:5050';
+    $HEDERA_NETWORK = env('HEDERA_NETWORK') ?: 'testnet'; // testnet|mainnet|previewnet
+    $HKSH_TOKEN_ID = env('HKSH_TOKEN_ID') ?: '0.0.XXXXXXX';
     $INITIAL_HBAR = 2.0;
-    $tUSDC_TOKEN_ID = getenv('tUSDC_TOKEN_ID') ?: '0.0.XXXXXXX';
+    $tUSDC_TOKEN_ID = env('tUSDC_TOKEN_ID') ?: '0.0.XXXXXXX';
 
 
     // Helpers

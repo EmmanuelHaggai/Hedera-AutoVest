@@ -16,18 +16,33 @@ $whatsappLinkHref = 'https://wa.me/18167908575'; // always talking to AI endpoin
 
 // Try to look up the link in DB if ref is present
 if ($refCode !== '') {
-    // Load .env for DB creds
-    $envPath = '/var/www/AutoVest.hedera.co.ke/.env';
-    if (file_exists($envPath)) {
-        $env = parse_ini_file($envPath, false, INI_SCANNER_RAW);
-    } else {
-        $env = [];
+     require_once '/var/www/AutoVest.hedera.co.ke/bootstrap_secrets.php';
+
+    try {
+        $DEBUG = filter_var(getenv('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+
+        if ($DEBUG) {
+            ini_set('display_errors', '1');
+            ini_set('display_startup_errors', '1');
+            error_reporting(E_ALL);
+        }
+
+        $AWS_REGION = getenv('AWS_REGION') ?: 'eu-west-1';
+        $AWS_SECRET_ID = getenv('AWS_SECRET_ID') ?: 'prod/autovest/app';
+
+        $env = loadAwsSecrets($AWS_SECRET_ID, $AWS_REGION);
+
+    } catch (Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['ok' => false, 'error' => 'bootstrap_failed']);
+        error_log($e->getMessage());
+        exit;
     }
 
-    $dbHost = getenv('DB_HOST') ?: ($env['DB_HOST'] ?? 'localhost');
-    $dbUser = getenv('DB_USER') ?: ($env['DB_USER'] ?? 'root');
-    $dbPass = getenv('DB_PASS') ?: ($env['DB_PASS'] ?? '');
-    $dbName = getenv('DB_NAME') ?: ($env['DB_NAME'] ?? 'hedera_ai');
+    $dbHost = env('DB_HOST') ?: ($env['DB_HOST'] ?? 'localhost');
+    $dbUser = env('DB_USER') ?: ($env['DB_USER'] ?? 'root');
+    $dbPass = env('DB_PASS') ?: ($env['DB_PASS'] ?? '');
+    $dbName = env('DB_NAME') ?: ($env['DB_NAME'] ?? 'hedera_ai');
 
     $db = @mysqli_connect($dbHost, $dbUser, $dbPass, $dbName);
 

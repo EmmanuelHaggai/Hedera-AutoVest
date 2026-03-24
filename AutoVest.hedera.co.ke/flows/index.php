@@ -24,47 +24,38 @@ require_once '/var/www/AutoVest.hedera.co.ke/api/callback/hedera_functions.php';
  * Load .env from /var/www/AutoVest.hedera.co.ke/.env into $env
  */
 $env = [];
-$envPath = '/var/www/AutoVest.hedera.co.ke/.env';
-if (is_readable($envPath)) {
-    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
-    foreach ($lines as $line) {
-        $line = trim($line);
-        if ($line === '' || str_starts_with($line, ';')) continue;
+// Load environment variables from AWS KMS
+require_once '/var/www/AutoVest.hedera.co.ke/bootstrap_secrets.php';
 
-        // KEY=VALUE (support quoted values)
-        $pos = strpos($line, '=');
-        if ($pos === false) continue;
+try {
+    $DEBUG = filter_var(env('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN);
 
-        $key = trim(substr($line, 0, $pos));
-        $val = trim(substr($line, $pos + 1));
-
-        if ($key === '') continue;
-
-        // Strip surrounding quotes
-        if ((str_starts_with($val, '"') && str_ends_with($val, '"')) ||
-            (str_starts_with($val, "'") && str_ends_with($val, "'"))) {
-            $val = substr($val, 1, -1);
-        }
-
-        $env[$key] = $val;
-
-        // If not already set in process env, set it
-        if (getenv($key) === false) {
-            putenv($key . '=' . $val);
-            $_ENV[$key] = $val;
-            $_SERVER[$key] = $val;
-        }
+    if ($DEBUG) {
+        ini_set('display_errors', '1');
+        ini_set('display_startup_errors', '1');
+        error_reporting(E_ALL);
     }
+
+    $AWS_REGION = getenv('AWS_REGION') ?: 'eu-west-1';
+    $AWS_SECRET_ID = getenv('AWS_SECRET_ID') ?: 'prod/autovest/app';
+
+    $env = loadAwsSecrets($AWS_SECRET_ID, $AWS_REGION);
+
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'bootstrap_failed']);
+    error_log($e->getMessage());
+    exit;
 }
 
 // DB config (env or process env)
-$dbHost = getenv('DB_HOST') ?: ($env['DB_HOST'] ?? 'localhost');
-$dbUser = getenv('DB_USER') ?: ($env['DB_USER'] ?? 'root');
-$dbPass = getenv('DB_PASS') ?: ($env['DB_PASS'] ?? '');
-$dbName = getenv('DB_NAME') ?: ($env['DB_NAME'] ?? 'hedera_ai');
+$dbHost = env('DB_HOST') ?: ($env['DB_HOST'] ?? 'localhost');
+$dbUser = env('DB_USER') ?: ($env['DB_USER'] ?? 'root');
+$dbPass = env('DB_PASS') ?: ($env['DB_PASS'] ?? '');
+$dbName = env('DB_NAME') ?: ($env['DB_NAME'] ?? 'hedera_ai');
 
 // Flows private key path (env override)
-$privateKeyPath = getenv('FLOWS_PRIVATE_KEY') ?: ($env['FLOWS_PRIVATE_KEY'] ?? '/etc/whatsapp/flows_private.pem');
+$privateKeyPath = env('FLOWS_PRIVATE_KEY') ?: ($env['FLOWS_PRIVATE_KEY'] ?? '/etc/whatsapp/flows_private.pem');
 
 // Flow screen IDs (match your uploaded Flow)
 const SCREEN_KYC_ID      = 'KYC_ID';

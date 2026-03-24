@@ -24,23 +24,40 @@ declare(strict_types=1);
 die();
 
 // ---------- Settings ----------
-$API_BASE   = getenv('HEDERA_LOCAL_API') ?: 'http://127.0.0.1:5050';
+$API_BASE   = env('HEDERA_LOCAL_API') ?: 'http://127.0.0.1:5050';
 $TOK_DEC    = 2;                // decimals for fungible tokens
 $TOK_INIT   = 0;                // initial supply
 $TOK_SUPPLY = 'INFINITE';       // or 'FINITE' with a maxSupply
 
-// ---------- Load .env ----------
-$envPath = '/var/www/AutoVest.hedera.co.ke/.env';
-if (!file_exists($envPath)) {
-    fwrite(STDERR, ".env not found at {$envPath}\n");
-    exit(1);
+// Load environment variables from AWS KMS
+require_once '/var/www/AutoVest.hedera.co.ke/bootstrap_secrets.php';
+
+try {
+    $DEBUG = filter_var(env('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+
+    if ($DEBUG) {
+        ini_set('display_errors', '1');
+        ini_set('display_startup_errors', '1');
+        error_reporting(E_ALL);
+    }
+
+    $AWS_REGION = getenv('AWS_REGION') ?: 'eu-west-1';
+    $AWS_SECRET_ID = getenv('AWS_SECRET_ID') ?: 'prod/autovest/app';
+
+    $env = loadAwsSecrets($AWS_SECRET_ID, $AWS_REGION);
+
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'bootstrap_failed']);
+    error_log($e->getMessage());
+    exit;
 }
-$env = parse_ini_file($envPath, false, INI_SCANNER_TYPED);
-if ($env === false) {
-    fwrite(STDERR, "Failed to parse .env\n");
-    exit(1);
-}
+
+
 $DEBUG   = isset($env['DEBUG']) && filter_var($env['DEBUG'], FILTER_VALIDATE_BOOLEAN);
+
+
+
 $DB_HOST = $env['DB_HOST'] ?? '127.0.0.1';
 $DB_NAME = $env['DB_NAME'] ?? 'hedera_ai';
 $DB_USER = $env['DB_USER'] ?? '';

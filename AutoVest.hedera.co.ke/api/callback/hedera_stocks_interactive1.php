@@ -18,14 +18,37 @@
  *   tokens (token_id, decimals, treasury_account_id)  // to resolve mint precision and treasury
  */
 
+require_once '/var/www/AutoVest.hedera.co.ke/bootstrap_secrets.php';
+
+try {
+    $DEBUG = filter_var(env('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+
+    if ($DEBUG) {
+        ini_set('display_errors', '1');
+        ini_set('display_startup_errors', '1');
+        error_reporting(E_ALL);
+    }
+
+    $AWS_REGION = getenv('AWS_REGION') ?: 'eu-west-1';
+    $AWS_SECRET_ID = getenv('AWS_SECRET_ID') ?: 'prod/autovest/app';
+
+    $env = loadAwsSecrets($AWS_SECRET_ID, $AWS_REGION);
+
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'bootstrap_failed']);
+    error_log($e->getMessage());
+    exit;
+}
+
 
 // Switch db connection
 mysqli_close($db);
 // Retrieve database credentials from environment
-$dbHost = getenv('DB_HOST') ?: 'localhost';
-$dbUser = getenv('DB_USER') ?: 'root';
-$dbPass = getenv('DB_PASS') ?: '';
-$dbName = getenv('DB_NAME') ?: 'hedera_ai';
+$dbHost = env('DB_HOST') ?: 'localhost';
+$dbUser = env('DB_USER') ?: 'root';
+$dbPass = env('DB_PASS') ?: '';
+$dbName = env('DB_NAME') ?: 'hedera_ai';
 
 // Connect to the database
 $db = $con = mysqli_connect($dbHost, $dbUser, $dbPass, $dbName);
@@ -229,7 +252,7 @@ function process_stock_interactive(mysqli $db, array $parts): void {
         return;
     }
     $decimals = (int)$meta['decimals'];
-    $treasury = (string)($meta['treasury_account_id'] ?? getenv('TREASURY_ACCOUNT_ID') ?: '');
+    $treasury = (string)($meta['treasury_account_id'] ?? env('TREASURY_ACCOUNT_ID') ?: '');
 
     if ($treasury === '') {
         mark_order_status($db, $id, 'FAILED');
@@ -240,8 +263,8 @@ function process_stock_interactive(mysqli $db, array $parts): void {
     }
 
     // 3c) Env and amounts
-    $API      = rtrim(getenv('HEDERA_API_BASE') ?: 'http://127.0.0.1:5050', '/');
-    $HKSH_ID  = getenv('HKSH_TOKEN_ID') ?: ''; // required for HKSH debits
+    $API      = rtrim(env('HEDERA_API_BASE') ?: 'http://127.0.0.1:5050', '/');
+    $HKSH_ID  = env('HKSH_TOKEN_ID') ?: ''; // required for HKSH debits
 
     $shares   = (float)$order['shares'];
     $pxKes    = (float)$order['px_kes'];
@@ -296,7 +319,7 @@ function process_stock_interactive(mysqli $db, array $parts): void {
             if ($have + 1e-8 < $need) {
                 mark_order_status($db, $id, 'INSUFFICIENT_FUNDS', 'HKSH');
                 if (function_exists('custom_AutoVest_text_whatsapp')) {
-                    $decimals = (int)(getenv('HKSH_DECIMALS') ?: 2);
+                    $decimals = (int)(env('HKSH_DECIMALS') ?: 2);
                     $needFmt  = number_format($need, $decimals);
                     $haveFmt  = number_format(max(0.0, $have), $decimals);
                     $link     = "https://hashscan.io/{$userNetwork}/account/" . rawurlencode($userAccountId);
@@ -347,7 +370,7 @@ function process_stock_interactive(mysqli $db, array $parts): void {
         }
         $humanAmount = (float)$totalHk; // 1 HKSH = 1 KES
 
-        $decimals      = (int) (getenv('HKSH_DECIMALS') ?: 2);
+        $decimals      = (int) (env('HKSH_DECIMALS') ?: 2);
         $scale         = $decimals > 0 ? (10 ** $decimals) : 1;
         $scaledAmount  = (int) round($humanAmount * $scale);
 
@@ -469,8 +492,8 @@ function process_stock_interactive(mysqli $db, array $parts): void {
 
     // 3f.1) Publish a receipt to HCS (non-blocking)
     $topicTxId = null;
-    $API   = rtrim(getenv('HEDERA_API_BASE') ?: 'http://127.0.0.1:5050', '/');
-    $TOPIC = getenv('HCS_TOPIC_ID') ?: '';
+    $API   = rtrim(env('HEDERA_API_BASE') ?: 'http://127.0.0.1:5050', '/');
+    $TOPIC = env('HCS_TOPIC_ID') ?: '';
 
     if ($TOPIC) {
         // Build a compact on-chain receipt
